@@ -1,0 +1,407 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>Edificio y cámaras</title>
+    <style>
+      html, body { margin: 0; padding: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script src="js/three.min.js"></script>
+    <script src="js/controls/OrbitControls.js"></script>
+    <script src='js/libs/dat.gui.min.js'></script>
+    <script>
+		var scene, aspect, camera, camera2, renderer, controls, helper, helper2;
+                var camera3, helper3, camera4, helper4;
+                var w = window.innerWidth, h = window.innerHeight;
+                var mapWidth=320, mapHeight=240;
+                var figural, original;
+                var frustumSize = 5;
+	 	var startTime = Date.now();
+
+		init();
+		animate();
+	
+		function init(){
+			scene = new THREE.Scene();
+			//scene.background = new THREE.Color( 0xAAAAAA );
+			aspect = window.innerWidth/ window.innerHeight;
+			camera = new THREE.PerspectiveCamera( 45, aspect, 0.1, 1000);
+			renderer = new THREE.WebGLRenderer({antialias: true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			controls = new THREE.OrbitControls( camera, renderer.domElement );
+				  
+			var size = 10;
+			var arrowSize = 1;
+			var divisions = size;
+			var origin = new THREE.Vector3( 0, 0, 0 );
+			var x = new THREE.Vector3( 1, 0, 0 );
+			var y = new THREE.Vector3( 0, 1, 0 );
+		  	var z = new THREE.Vector3( 0, 0, 1 );
+			var color1 = new THREE.Color( 0xFFFFFF );
+		  	var color2 = new THREE.Color( 0x333333 );
+		  	var colorR = new THREE.Color( 0xAA3333 );
+		  	var colorG = new THREE.Color( 0x33AA33 );
+		  	var colorB = new THREE.Color( 0x333366 );
+		  
+		  	//GRILLAS 
+		  	var axesHelper = new THREE.AxesHelper( size );
+		  	var gridHelperXY = new THREE.GridHelper( size, divisions, color1, color1);
+		  	var gridHelperXZ = new THREE.GridHelper( size, divisions, color2, color2 );
+		  	var gridHelperYZ = new THREE.GridHelper( size, divisions, color2, color2 );
+            
+            //ROTAR GRILLAS
+            gridHelperXY.rotateOnWorldAxis ( x, THREE.Math.degToRad(90) );
+            gridHelperXZ.rotateOnWorldAxis ( y, THREE.Math.degToRad(90) );
+            gridHelperYZ.rotateOnWorldAxis ( z, THREE.Math.degToRad(90) );
+
+			
+			//GEOMETRÍAS
+                        var geo1 = new THREE.Geometry();
+			var punto = [];
+			punto[0] = new THREE.Vector3( -3,  3,  3);
+			punto[1] = new THREE.Vector3( -3,  3, -3);
+			punto[2] = new THREE.Vector3( -3, -3,  3);
+			punto[3] = new THREE.Vector3( -3, -3, -3 );
+			punto[4] = new THREE.Vector3(  3,  3,  3);
+			punto[5] = new THREE.Vector3(  3,  3, -3);
+			punto[6] = new THREE.Vector3(  3, -3,  3);
+			punto[7] = new THREE.Vector3(  3, -3, -3);
+			for( var i = 0; i < 8; i++){
+				geo1.vertices.push( punto[i] );
+            }
+                        var geo2 = new THREE.Geometry();
+			var punto2 = [];
+			punto2[0] = new THREE.Vector3( 5,  3,  3);
+			punto2[1] = new THREE.Vector3( 5,  3, -3);
+			punto2[2] = new THREE.Vector3( 5, -3,  3);
+			punto2[3] = new THREE.Vector3( 5, -3, -3 );
+			punto2[4] = new THREE.Vector3( 6,  3,  3);
+			punto2[5] = new THREE.Vector3( 6,  3, -3);
+			punto2[6] = new THREE.Vector3( 6, -3,  3);
+			punto2[7] = new THREE.Vector3( 6, -3, -3);
+			for( var i = 0; i < 8; i++){
+				geo2.vertices.push( punto[i] );
+            }
+            
+            var geoedif = new THREE.Geometry();
+            var zTemp = 0;
+            var res = 25.0;
+            for( var i = 0; i < res; i++){
+                for( var j = 0; j < res; j++){
+                    var punto = new THREE.Vector3();
+                    punto.x = (2.0 * (res - i) / res ) * Math.cos( ( j * 2.0 * Math.PI ) / res) ;
+                    punto.y = 2.0 * i / res+1.5;
+                    punto.z = (2.0 * (res - i) / res ) * Math.sin( ( j * 2.0 * Math.PI ) / res) ;
+                    geoedif.vertices.push( punto );
+                }
+            }
+             
+            var geoedif2= new THREE.Geometry();
+            geoedif2.vertices.push(new THREE.Vector3(Math.cos(20),0,Math.sin(20)));
+            for ( var i=0;i<2;i=i+0.5){
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-1));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+            geoedif2.vertices.push(new THREE.Vector3(1.5,i,-0.5));
+    }
+
+            var geoedif3= new THREE.Geometry();
+            geoedif3.vertices.push(new THREE.Vector3(Math.cos(20),0,Math.sin(20)));
+            for ( var i=0;i<2;i=i+0.5){
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-1));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+            geoedif3.vertices.push(new THREE.Vector3(-1.5,i,-0.5));
+    }
+	
+            var geoedif4= new THREE.Geometry();
+            geoedif4.vertices.push(new THREE.Vector3(Math.cos(20),0,Math.sin(20)));
+            for ( var i=0;i<2;i=i+0.5){
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(-0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+            geoedif4.vertices.push(new THREE.Vector3(0.5,i,1));
+    }
+	
+            var geoedif5= new THREE.Geometry();
+            geoedif5.vertices.push(new THREE.Vector3(Math.cos(20),0,Math.sin(20)));
+            for ( var i=0;i<2;i=i+0.5){
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(-0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+            geoedif5.vertices.push(new THREE.Vector3(0.5,i,-1));
+    }	
+
+            camera2 = new THREE.OrthographicCamera( frustumSize * aspect / - 2,  //left — Camera frustum left plane.
+                                                    frustumSize * aspect / 2,    //right — Camera frustum right plane.
+                                                    frustumSize / 2,             //top — Camera frustum top plane.
+                                                    frustumSize / - 2,           //bottom — Camera frustum bottom plane.
+                                                    1,                           //near — Camera frustum near plane.
+                                                    10 );
+            var helper = new THREE.CameraHelper( camera2 );
+            scene.add( helper );
+
+            camera3 = new THREE.OrthographicCamera( frustumSize * aspect /  -2, 
+                                                    frustumSize * aspect /2,   
+                                                    frustumSize / 2,           
+                                                    frustumSize / -2,         
+                                                    1,   
+                                                    10 );
+            var helper3 = new THREE.CameraHelper( camera3 );
+            scene.add( helper3 );
+
+            camera4 = new THREE.OrthographicCamera( frustumSize * aspect / - 2,  //left — Camera frustum left plane.
+                                                    frustumSize * aspect / 2,    //right — Camera frustum right plane.
+                                                    frustumSize / 2,             //top — Camera frustum top plane.
+                                                    frustumSize / - 2,           //bottom — Camera frustum bottom plane.
+                                                    1,                           //near — Camera frustum near plane.
+                                                    10 );
+            var helper4 = new THREE.CameraHelper( camera4 );
+            scene.add( helper4 );
+
+			//CREAR LOS MATERIALES            
+			var matPunto = new THREE.PointsMaterial( { color: 0xAA3333 , size: 0.2 } );
+			var matPunto2= new THREE.PointsMaterial({ color: 0x241bb6, size: 0.2});
+			var matPunto3= new THREE.PointsMaterial({ color: 0x33AA33, size: 0.2});
+
+			//CREAR LOS OBJETOS
+			var techo = new THREE.Points( geoedif, matPunto );
+			var edif = new THREE.Points( geo1, matPunto3 );
+			var edif2 = new THREE.Points( geo2, matPunto3 );
+		        var edificiopared = new THREE.Points( geoedif2, matPunto2 );  
+		        var edificiopared2 = new THREE.Points( geoedif3, matPunto2 );
+ 		        var edificiopared3 = new THREE.Points( geoedif4, matPunto2 ); 
+ 		        var edificiopared4 = new THREE.Points( geoedif5, matPunto2 );     
+
+		  	//AGREGAR A LA ESCENA
+		  	//scene.add( gridHelperXY );
+                        scene.add( gridHelperXZ );
+	                scene.add( techo );
+                        scene.add( edif );
+                        scene.add( edif2 );
+			scene.add( edificiopared );
+			scene.add( edificiopared2 );
+			scene.add( edificiopared3 );
+			scene.add( edificiopared4 );
+
+
+
+			camera.position.x = 3;
+			camera.position.y = 0;	 
+		  	camera.position.z = 3;
+			
+		  	camera.lookAt( origin );
+                        camera2.copy(camera);
+                        camera3.copy(camera);
+                        camera4.copy(camera);
+
+            var effectController  = {
+                frustum: 6,
+                nearPlane: 1,
+                farPlane: 10,
+                aspect: w/h,
+            };
+            var effectController2  = {
+                frustum2: 5,
+                nearPlane2: 2,
+                farPlane2: 8,
+                aspect2: w/h,
+            };
+            var effectController3  = {
+                frustum3: 9,
+                nearPlane3: 3,
+                farPlane3: 5,
+                aspect3: w/h,
+            };
+
+            var matChanger = function( ) {
+
+                frustumSize = effectController.frustum;
+                aspect = effectController.aspect;
+
+                frustumSize2 = effectController2.frustum2;
+                aspect2 = effectController2.aspect2;
+
+                frustumSize3 = effectController3.frustum3;
+                aspect3 = effectController3.aspect3;
+
+                //camera2.frustum = frustumSize;
+                camera2.left   = - frustumSize * aspect / 2;
+                camera2.right  =   frustumSize * aspect / 2;
+                camera2.top    =   frustumSize / 2;
+                camera2.bottom = - frustumSize / 2;
+                camera2.near = effectController.nearPlane;
+                camera2.far = effectController.farPlane;
+                camera2.updateProjectionMatrix();
+                helper.update();
+
+                camera3.left   = - frustumSize2 * aspect2 / 2;
+                camera3.right  =   frustumSize2 * aspect2 / 2;
+                camera3.top    =   frustumSize2 / 2;
+                camera3.bottom = - frustumSize2 / 2;
+                camera3.near = effectController2.nearPlane2;
+                camera3.far = effectController2.farPlane2;
+
+                camera3.updateProjectionMatrix();
+                helper3.update();
+
+                camera4.left   = - frustumSize3 * aspect3 / 2;
+                camera4.right  =   frustumSize3 * aspect3 / 2;
+                camera4.top    =   frustumSize3 / 2;
+                camera4.bottom = - frustumSize3 / 2;
+                camera4.near = effectController3.nearPlane3;
+                camera4.far = effectController3.farPlane3;
+
+                camera4.updateProjectionMatrix();
+                helper4.update();
+
+
+            };
+
+            var gui = new dat.GUI();
+            gui.add( effectController, "frustum", 1, 100, 1 ).onChange( matChanger );
+            gui.add( effectController, "nearPlane", 0.1, 100, 0.1 ).onChange( matChanger );
+            gui.add( effectController, "farPlane", 0.1, 100, 1 ).onChange( matChanger );
+            gui.add( effectController, "aspect", 0.1, 10, 0.001 ).onChange( matChanger );
+
+            
+            matChanger();
+
+			}
+   
+    function animate() {
+        requestAnimationFrame( animate );
+        controls.update();
+        render();
+    }
+    
+    function render(){
+	
+        renderer.setViewport(0,0,w,h/2);
+        renderer.setScissor(0,0,w,h/2); 
+        renderer.render( scene, camera );
+        renderer.setViewport(0,h-mapHeight-90,mapWidth+140,mapHeight+100);
+        renderer.setScissor(0,h-mapHeight-90,mapWidth+140,mapHeight+100); 
+        renderer.setScissorTest(true);
+        renderer.render( scene, camera2 );
+        renderer.setViewport(457,h-mapHeight-90,mapWidth+140,mapHeight+100);
+        renderer.setScissor(457,h-mapHeight-90,mapWidth+140,mapHeight+100); 
+        renderer.setScissorTest(true);
+        renderer.render( scene, camera3 );
+        renderer.setViewport(913,h-mapHeight-90,mapWidth+133,mapHeight+100);
+        renderer.setScissor(913,h-mapHeight-90,mapWidth+133,mapHeight+100); 
+        renderer.setScissorTest(true);
+        renderer.render( scene, camera4 );
+
+    }
+    
+
+    </script>
+  </body>
+</html>
